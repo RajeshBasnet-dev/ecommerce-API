@@ -1,7 +1,5 @@
 from django.db import models
 from accounts.models import User
-from products.models import Product
-from orders.models import Order
 
 class SalesAnalytics(models.Model):
     date = models.DateField()
@@ -20,7 +18,7 @@ class SalesAnalytics(models.Model):
 class UserActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
     activity_type = models.CharField(max_length=50)  # e.g., 'login', 'view_product', 'add_to_cart'
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     
     class Meta:

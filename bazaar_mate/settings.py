@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_filters',
-    'apps.users',
+    'apps.users',  # Reverted to simple app name
     'apps.products',
     'apps.cart',
     'apps.orders',

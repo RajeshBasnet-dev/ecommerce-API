@@ -96,7 +96,7 @@ class LogoutView(generics.GenericAPIView):
             
             return Response({'message': 'Successfully logged out'}, 
                           status=status.HTTP_200_OK)
-        except User.DoesNotExist:  # type: ignore
+        except User.DoesNotExist:
             return Response({'error': 'User not found'}, 
                           status=status.HTTP_404_NOT_FOUND)
         except TokenError as e:

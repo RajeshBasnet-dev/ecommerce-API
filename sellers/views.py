@@ -102,6 +102,16 @@ class SellerProductListView(generics.ListCreateAPIView):
                 'error': 'Only sellers can create products'
             }, status=status.HTTP_403_FORBIDDEN)
         
+        # Check if user has a seller profile
+        try:
+            seller_profile = SellerProfile.objects.get(user=request.user)
+        except SellerProfile.DoesNotExist:
+            return Response({
+                'success': False,
+                'data': None,
+                'error': 'Seller profile not found'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

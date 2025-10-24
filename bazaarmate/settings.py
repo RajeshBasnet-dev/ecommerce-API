@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
-    'csp',  # Content Security Policy
     'django_extensions',  # Added for debugging
     'accounts',
     'sellers',
@@ -68,7 +67,6 @@ INSTALLED_APPS = [
 CORS_ALLOW_ALL_ORIGINS = True
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'csp.middleware.CSPMiddleware',  # Content Security Policy middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -220,22 +218,6 @@ SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)  # Enable i
 SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=False)  # Enable in production
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=False)  # Enable in production
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-
-# Content Security Policy (new format for django-csp 4.0+)
-CONTENT_SECURITY_POLICY = {
-    'DIRECTIVES': {
-        'default-src': ["'self'"],
-        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-        'img-src': ["'self'", "data:", "https:"],
-        'font-src': ["'self'", "https:", "data:"],
-        'connect-src': ["'self'"],
-        'object-src': ["'none'"],
-        'base-uri': ["'self'"],
-        'form-action': ["'self'"],
-        'frame-ancestors': ["'none'"],
-    }
-}
 
 # Logging configuration for security events
 LOGGING = {

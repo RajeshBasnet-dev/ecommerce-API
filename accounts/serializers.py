@@ -3,7 +3,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import User
-from sellers.models import SellerProfile
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -34,7 +33,7 @@ class SellerProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     
     class Meta:
-        model = SellerProfile
+        model = 'sellers.SellerProfile'  # Use string reference to avoid circular import
         fields = '__all__'
         read_only_fields = ('id', 'user', 'earnings')
 
@@ -49,9 +48,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    seller_profile = SellerProfileSerializer(read_only=True)
+    # Use a SerializerMethodField to safely handle seller_profile
+    seller_profile = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'role', 'first_name', 'last_name', 'phone_number', 'date_of_birth', 'seller_profile')
         read_only_fields = ('id', 'role')
+    
+    def get_seller_profile(self, obj):
+        # Safely get seller profile if it exists
+        try:
+            if hasattr(obj, 'seller_profile'):
+                serializer = SellerProfileSerializer(obj.seller_profile)
+                return serializer.data
+            return None
+        except:
+            return None

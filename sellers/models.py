@@ -1,8 +1,7 @@
 from django.db import models
-from accounts.models import User
 
 class SellerProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seller_profile')
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='seller_profile')
     store_name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

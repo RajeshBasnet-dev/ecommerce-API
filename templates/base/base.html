@@ -80,13 +80,17 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        
+        .method-badge {
+            font-size: 0.75rem;
+        }
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
+            <a class="navbar-brand" href="{% url 'index' %}">
                 <i class="bi bi-cart-check"></i> BazaarMate
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -94,6 +98,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">API Index</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
@@ -168,6 +175,7 @@
                 <div class="col-md-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
+                        <li><a href="{% url 'index' %}" class="text-white">API Index</a></li>
                         <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
                         <li><a href="{% url 'product_list' %}" class="text-white">Products</a></li>
                         <li><a href="{% url 'cart' %}" class="text-white">Cart</a></li>

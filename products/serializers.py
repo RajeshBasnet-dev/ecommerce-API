@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Category, Product
-from sellers.models import SellerProfile
 
 class CategorySerializer(serializers.ModelSerializer):
     products_count = serializers.SerializerMethodField()

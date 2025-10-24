@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+
+{% block title %}API Index - BazaarMate{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="mb-0">
+                        <i class="bi bi-list"></i> BazaarMate API Index
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        Welcome to the BazaarMate E-commerce API. This page provides a structured overview of all available endpoints.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Note:</strong> Some endpoints require authentication. Use the JWT token endpoints to obtain access tokens.
+                    </div>
+                    
+                    {% for category, endpoints in endpoints.items %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h3 class="mb-0">
+                                <i class="bi bi-folder"></i> {{ category }}
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Endpoint</th>
+                                            <th>Method</th>
+                                            <th>Description</th>
+                                            <th>URL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for endpoint in endpoints %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ endpoint.name }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ endpoint.method }}</span>
+                                            </td>
+                                            <td>{{ endpoint.description }}</td>
+                                            <td>
+                                                <a href="{{ endpoint.url }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-link"></i> {{ endpoint.url }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

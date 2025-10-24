@@ -24,3 +24,18 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+class BlacklistedToken(models.Model):
+    """
+    Model to store blacklisted JWT tokens for revocation.
+    """
+    jti = models.CharField(max_length=255, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'users_blacklistedtoken'
+    
+    def __str__(self):
+        return f"Blacklisted token for user {self.user}"

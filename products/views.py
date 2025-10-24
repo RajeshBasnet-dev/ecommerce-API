@@ -129,9 +129,17 @@ class ProductListCreateView(generics.ListCreateAPIView):
         })
     
     def create(self, request, *args, **kwargs):
+        # Check if user has a seller profile
+        if not hasattr(request.user, 'seller_profile'):
+            return Response({
+                'success': False,
+                'data': None,
+                'error': 'User must have a seller profile to create products'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # Set the seller to the current user
+        # Set the seller to the current user's seller profile
         serializer.save(seller=request.user.seller_profile)
         return Response({
             'success': True,
