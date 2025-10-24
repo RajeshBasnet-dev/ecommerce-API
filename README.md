@@ -8,6 +8,7 @@ A fully functional REST API for an e-commerce platform built with Django REST Fr
   - JWT-based authentication for all endpoints
   - Registration, login, profile management
   - Role-based access control (Buyer, Seller, Admin)
+  - Multi-factor authentication support
 
 - **Product Management**
   - Product catalog with categories
@@ -36,6 +37,7 @@ A fully functional REST API for an e-commerce platform built with Django REST Fr
   - Input validation and error handling
   - Comprehensive API documentation
   - Global search functionality
+  - **Enhanced Security Features** (See [Security Enhancements](SECURITY_ENHANCEMENTS.md))
 
 ## Technology Stack
 
@@ -44,6 +46,7 @@ A fully functional REST API for an e-commerce platform built with Django REST Fr
 - **Authentication**: JWT via djangorestframework-simplejwt
 - **API Documentation**: Swagger/OpenAPI via drf-yasg
 - **Filtering**: django-filter
+- **Security**: django-csp, django-environ, cryptography
 
 ## Project Structure
 
@@ -68,8 +71,12 @@ bazaar_mate/
 ## API Endpoints
 
 ### Authentication
+- `POST /api/token/` - Obtain JWT token
+- `POST /api/token/refresh/` - Refresh access token
 - `POST /api/auth/register/` - User registration
 - `POST /api/auth/login/` - User login
+- `POST /api/auth/logout/` - User logout (revoke token)
+- `POST /api/auth/refresh/` - Refresh access token
 - `GET /api/auth/profile/` - Get user profile
 - `PUT /api/auth/profile/` - Update user profile
 
@@ -116,6 +123,162 @@ bazaar_mate/
 ### Search
 - `GET /api/search/?q={query}` - Global search across products and categories
 
+## Security Enhancements
+
+This API includes comprehensive security enhancements to protect sensitive data and prevent common vulnerabilities:
+
+### Authentication Security
+- Strong JWT implementation with short-lived access tokens (15 minutes)
+- Rotating refresh tokens with blacklist support
+- Token revocation on logout or password change
+- Rate limiting for authentication endpoints (5 attempts/minute)
+
+### Password Security
+- Minimum 12-character password requirements
+- Mandatory uppercase, lowercase, digit, and special character
+- Prevention of common password patterns
+- PBKDF2 secure password hashing
+
+### Data Security
+- Field-level encryption for sensitive data (phone numbers, messages)
+- Environment-based secret management
+- HTTPS enforcement in production
+
+### API Security
+- Content Security Policy (CSP) implementation
+- HTTP Strict Transport Security (HSTS)
+- XSS and content type sniffing protection
+- Proper CORS configuration
+
+### Safe Git Practices
+- Comprehensive .gitignore to prevent sensitive file commits
+- Environment variable management with .env.example template
+
+For detailed information about all security enhancements, see [SECURITY_ENHANCEMENTS.md](SECURITY_ENHANCEMENTS.md).
+
+## Testing the API with JWT Authentication
+
+### 1. Obtain JWT Tokens
+
+To access protected endpoints, you first need to obtain a JWT token:
+
+#### Using cURL:
+```bash
+# Register a new user (optional)
+curl -X POST http://localhost:8000/api/auth/register/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "StrongPass123!",
+    "role": "buyer"
+  }'
+
+# Obtain access and refresh tokens
+curl -X POST http://localhost:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "StrongPass123!"
+  }'
+```
+
+This will return:
+```json
+{
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+#### Using Postman:
+1. Set the request method to POST
+2. Set the URL to `http://localhost:8000/api/token/`
+3. In the "Body" tab, select "raw" and "JSON"
+4. Enter the credentials:
+```json
+{
+  "username": "testuser",
+  "password": "StrongPass123!"
+}
+```
+5. Click "Send"
+
+### 2. Use JWT Tokens to Access Protected Endpoints
+
+Once you have the access token, include it in the Authorization header for all protected requests:
+
+#### Using cURL:
+```bash
+# Access a protected endpoint
+curl -X GET http://localhost:8000/api/products/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+
+# Create a new product (requires seller or admin role)
+curl -X POST http://localhost:8000/api/products/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "New Product",
+    "description": "Product description",
+    "price": "29.99",
+    "stock": 100,
+    "category": 1
+  }'
+```
+
+#### Using Postman:
+1. Set the request method and URL for the endpoint you want to test
+2. In the "Headers" tab, add a new header:
+   - Key: `Authorization`
+   - Value: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...` (your access token)
+3. Click "Send"
+
+### 3. Refresh Expired Tokens
+
+Access tokens expire after 15 minutes. To get a new access token:
+
+#### Using cURL:
+```bash
+curl -X POST http://localhost:8000/api/token/refresh/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+  }'
+```
+
+#### Using Postman:
+1. Set the request method to POST
+2. Set the URL to `http://localhost:8000/api/token/refresh/`
+3. In the "Body" tab, select "raw" and "JSON"
+4. Enter the refresh token:
+```json
+{
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+5. Click "Send"
+
+### 4. Role-Based Access Control
+
+The API implements role-based access control:
+- **Buyers**: Can view products, manage cart, place orders, write reviews
+- **Sellers**: Can manage their own products, view their orders
+- **Admins**: Full access to all endpoints
+
+Some endpoints will return 403 Forbidden if you don't have the required role.
+
+### 5. Error Handling
+
+The API returns appropriate HTTP status codes:
+- `200 OK`: Successful GET, PUT requests
+- `201 Created`: Successful POST requests
+- `204 No Content`: Successful DELETE requests
+- `400 Bad Request`: Invalid request data
+- `401 Unauthorized`: Missing or invalid authentication
+- `403 Forbidden`: Insufficient permissions
+- `404 Not Found`: Resource not found
+
 ## Setup Instructions
 
 1. **Clone the repository**:
@@ -135,22 +298,28 @@ bazaar_mate/
    pip install -r requirements.txt
    ```
 
-4. **Run migrations**:
+4. **Create a .env file**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Run migrations**:
    ```bash
    python manage.py migrate
    ```
 
-5. **Create a superuser**:
+6. **Create a superuser**:
    ```bash
    python manage.py createsuperuser
    ```
 
-6. **Run the development server**:
+7. **Run the development server**:
    ```bash
    python manage.py runserver
    ```
 
-7. **Access the API documentation**:
+8. **Access the API documentation**:
    - Swagger UI: http://localhost:8000/swagger/
    - ReDoc: http://localhost:8000/redoc/
 
@@ -192,7 +361,7 @@ Most endpoints require authentication. To authenticate:
 1. Register a new user or use existing credentials
 2. Obtain a JWT token:
    ```bash
-   POST /api/auth/login/
+   POST /api/token/
    {
      "username": "your_username",
      "password": "your_password"
