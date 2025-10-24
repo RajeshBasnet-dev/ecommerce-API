@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'csp',  # Content Security Policy
+    'django_extensions',  # Added for debugging
     'accounts',
     'sellers',
     'products',
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     'api',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'csp.middleware.CSPMiddleware',  # Content Security Policy middleware
@@ -76,6 +78,7 @@ MIDDLEWARE = [
     # Additional security middleware
     'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'bazaarmate.urls'

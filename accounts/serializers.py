@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from .models import User
 from sellers.models import SellerProfile
 
@@ -10,6 +12,16 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'password', 'role', 'first_name', 'last_name', 'phone_number', 'date_of_birth')
         read_only_fields = ('id',)
+    
+    def validate_password(self, value):
+        """
+        Validate password strength
+        """
+        try:
+            validate_password(value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)
+        return value
     
     def create(self, validated_data):
         password = validated_data.pop('password')

@@ -143,3 +143,21 @@ Thumbs.db
 
 # Media files
 media/
+
+# Additional sensitive files to exclude
+.env.local
+.env.production
+.env.staging
+.env.*.local
+*.env
+.envrc
+.secret
+.secrets
+*.secret
+*.secrets
+key.pem
+cert.pem
+*.key
+*.pem
+*.crt
+*.cert
