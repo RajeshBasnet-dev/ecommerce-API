@@ -1,0 +1,142 @@
+{% extends 'base/base.html' %}
+
+{% block title %}My Profile - BazaarMate{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>My Profile</h1>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                    <h3 class="mt-3" id="user-username"></h3>
+                    <p class="text-muted" id="user-email"></p>
+                    <span class="badge bg-primary" id="user-role"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profile-form">
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone_number">
+                        </div>
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="date_of_birth">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        loadUserProfile();
+        
+        $('#profile-form').submit(function(e) {
+            e.preventDefault();
+            updateUserProfile();
+        });
+    });
+    
+    function loadUserProfile() {
+        $.ajax({
+            url: '/api/auth/profile/',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            success: function(response) {
+                if (response.success) {
+                    const user = response.data;
+                    $('#user-username').text(user.username);
+                    $('#user-email').text(user.email);
+                    $('#user-role').text(user.role.charAt(0).toUpperCase() + user.role.slice(1));
+                    
+                    $('#first_name').val(user.first_name || '');
+                    $('#last_name').val(user.last_name || '');
+                    $('#email').val(user.email);
+                    $('#phone_number').val(user.phone_number || '');
+                    $('#date_of_birth').val(user.date_of_birth || '');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error loading profile:', error);
+                alert('Error loading profile. Please try again.');
+            }
+        });
+    }
+    
+    function updateUserProfile() {
+        const profileData = {
+            first_name: $('#first_name').val(),
+            last_name: $('#last_name').val(),
+            phone_number: $('#phone_number').val(),
+            date_of_birth: $('#date_of_birth').val()
+        };
+        
+        $.ajax({
+            url: '/api/auth/profile/',
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            data: JSON.stringify(profileData),
+            success: function(response) {
+                if (response.success) {
+                    alert('Profile updated successfully!');
+                } else {
+                    alert('Error updating profile: ' + response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Error updating profile. Please try again.');
+                console.log('Error:', error);
+            }
+        });
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

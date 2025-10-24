@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Register - BazaarMate{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Create Your Account</h3>
+                </div>
+                <div class="card-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" required>
+                                <option value="buyer">Buyer</option>
+                                <option value="seller">Seller</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#register-form').submit(function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                username: $('#username').val(),
+                email: $('#email').val(),
+                password: $('#password').val(),
+                first_name: $('#first_name').val(),
+                last_name: $('#last_name').val(),
+                role: $('#role').val()
+            };
+            
+            $.ajax({
+                url: '/api/auth/register/',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(userData),
+                success: function(response) {
+                    if (response.success) {
+                        alert('Registration successful! Please login.');
+                        window.location.href = '{% url "login" %}';
+                    } else {
+                        alert('Registration failed: ' + response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Registration failed. Please try again.');
+                    console.log('Error:', error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
