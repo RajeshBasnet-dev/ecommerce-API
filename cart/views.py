@@ -1,9 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Cart, CartItem
 from products.models import Product
 from .serializers import CartSerializer, CartItemSerializer
+from api.permissions import IsOwnerOrAdmin
 
 class CartView(generics.RetrieveAPIView):
     serializer_class = CartSerializer

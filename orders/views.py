@@ -1,12 +1,21 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Order, OrderItem
 from .serializers import OrderSerializer
+from api.permissions import IsBuyerOrAdmin, IsOwnerOrAdmin
 
 class OrderListCreateView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            # Only buyers and admins can create orders
+            permission_classes = [IsBuyerOrAdmin]
+        else:
+            # Only authenticated users can list orders
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_queryset(self):
         if self.request.user.role == 'admin':
