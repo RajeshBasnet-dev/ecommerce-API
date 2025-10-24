@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from api.views import GlobalSearchView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('api/orders/', include('apps.orders.urls')),
     path('api/reviews/', include('apps.reviews.urls')),
     path('api/messages/', include('apps.messaging.urls')),
+    path('api/search/', GlobalSearchView.as_view(), name='global-search'),
 ]
 
 if settings.DEBUG:
